@@ -1,0 +1,40 @@
+name: CI/CD Pipeline - Blog App
+
+on:
+  push:
+    branches:
+      - main   # Runs whenever you push to main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the latest code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Run tests (if any)
+      - name: Run tests
+        run: echo "No tests yet - skipping..."
+
+      # Step 5: Build Docker image
+      - name: Build Docker image
+        run: docker build -t blog-app .
+
+      # Step 6: Push Docker image to GitHub Container Registry (optional)
+      - name: Push Docker image
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker tag blog-app ghcr.io/${{ github.repository_owner }}/blog-app:latest
+          docker push ghcr.io/${{ github.repository_owner }}/blog-app:latest
