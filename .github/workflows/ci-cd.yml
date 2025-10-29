@@ -3,18 +3,18 @@ name: CI/CD Pipeline - Blog App
 on:
   push:
     branches:
-      - main  # Trigger pipeline on every push to main branch
+      - main   # Runs whenever you push to main branch
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
+      # Step 1: Checkout the latest code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Setup Node.js
+      # Step 2: Set up Node.js environment
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -26,14 +26,15 @@ jobs:
 
       # Step 4: Run tests (if any)
       - name: Run tests
-        run: echo "No tests available - skipping."
+        run: echo "No tests yet - skipping..."
 
       # Step 5: Build Docker image
       - name: Build Docker image
-        run: docker build -t ghcr.io/${{ github.repository_owner }}/blog-app:latest .
+        run: docker build -t ghcr.io/${{ github.repository_owner || 'jenithablesy' }}/blog-app:latest .
 
-      # Step 6: Push Docker image to GitHub Container Registry
+      # Step 6: Login and Push Docker image to GitHub Container Registry
       - name: Push Docker image
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/${{ github.repository_owner }}/blog-app:latest
+          docker tag blog-app ghcr.io/${{ github.repository_owner || 'jenithablesy' }}/blog-app:latest
+          docker push ghcr.io/${{ github.repository_owner || 'jenithablesy' }}/blog-app:latest
